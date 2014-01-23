@@ -3,7 +3,7 @@ class ClassroomActivity < ActiveRecord::Base
   belongs_to :activity
   belongs_to :unit
   # belongs_to :chapter, foreign_key: 'activity_id' #REMOVE
-  has_many :activity_enrollments, dependent: :destroy
+  has_many :activity_sessions, dependent: :destroy
   # default_scope -> { includes(:chapter).order('chapters.title ASC') }
 
   def due_date_string= val
@@ -14,7 +14,7 @@ class ClassroomActivity < ActiveRecord::Base
     due_date.try(:strftime, '%m/%d/%Y')
   end
 
-  def enrollment_for user
-    activity_enrollments.find_or_create_by!(user_id: user.id)
+  def session_for user
+    activity_sessions.find_or_create_by!(user_id: user.id)
   end
 end
