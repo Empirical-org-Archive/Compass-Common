@@ -1,4 +1,4 @@
-class ActivityEnrollment < ActiveRecord::Base
+class ActivitySession < ActiveRecord::Base
   belongs_to :classroom_activity
   belongs_to :user
   has_one :activity,   through: :classroom_activity
