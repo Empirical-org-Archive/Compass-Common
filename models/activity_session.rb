@@ -18,7 +18,7 @@ class ActivitySession < ActiveRecord::Base
     super.uniq.map{ |id| Rule.find(id) }
   end
 
-  def grade_name
+  def percentage_color
     return '' unless completed?
     case grade
     when 0.75..1.0
