@@ -34,6 +34,10 @@ class ActivitySession < ActiveRecord::Base
     activity.try(:uid)
   end
 
+  def completed?
+    completed_at.present?
+  end
+
   # Quill main app no longer handles grading. Instead, services put grades
   # to quill. This was the original source:
   #

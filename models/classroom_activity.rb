@@ -6,6 +6,10 @@ class ClassroomActivity < ActiveRecord::Base
   has_many :activity_sessions, dependent: :destroy
   # default_scope -> { includes(:chapter).order('chapters.title ASC') }
 
+  def assigned_students
+    User.where(id: assigned_student_ids)
+  end
+
   def due_date_string= val
     self.due_date = Date.strptime(val, '%m/%d/%Y')
   end

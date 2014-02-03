@@ -1,12 +1,10 @@
 class Classroom < ActiveRecord::Base
   has_many :classroom_chapters
-  has_many :chapters, through: :classroom_chapters
-  has_many :scores, through: :classroom_chapters
   has_many :units
 
   has_many :classroom_activities
   has_many :activities, through: :classroom_activities
-  has_many :activity_enrollments, through: :classroom_activities
+  has_many :activity_sessions, through: :classroom_activities
   has_many :sections, through: :activities
 
   has_many :students, -> { where role: 'student' }, foreign_key: 'classcode', class_name: 'User', primary_key: 'code'
