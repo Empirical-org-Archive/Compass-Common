@@ -10,6 +10,10 @@ class ActivitySession < ActiveRecord::Base
   before_create :create_uid
   before_create :set_state
 
+  def activity
+    super || classroom_activity.activity
+  end
+
   def classroom
     classroom_chapter.classroom
   end
