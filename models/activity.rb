@@ -28,6 +28,7 @@ class Activity < ActiveRecord::Base
   def module_url activity_session
     url = classification.module_url.dup
 
+    # this forces the url to localhost:3002. At somp point this should be removed.
     if Rails.env.development?
       url = ((u = URI.parse(url)).host = 'localhost'; u.to_s)
       url = ((u = URI.parse(url)).port = 3002; u.to_s)
