@@ -1,11 +1,7 @@
 class ActivitySession < ActiveRecord::Base
   belongs_to :classroom_activity
   belongs_to :user
-  belongs_to :activity#,   through: :classroom_activity
-  has_many :inputs, class_name: 'RuleQuestionInput'
-
-  serialize :story_step_input, Array
-  serialize :missed_rules, Array
+  belongs_to :activity
 
   before_create :create_uid
   before_create :set_state
