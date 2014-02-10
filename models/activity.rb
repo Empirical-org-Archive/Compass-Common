@@ -20,6 +20,12 @@ class Activity < ActiveRecord::Base
 
   def form_url
     url = classification.form_url.dup
+
+    if Rails.env.development?
+      url = ((u = URI.parse(url)).host = 'localhost'; u.to_s)
+      url = ((u = URI.parse(url)).port = 3002; u.to_s)
+    end
+
     url = UriParams.add_param(url, 'cid', classification.uid)
     url = UriParams.add_param(url, 'uid', uid) if uid.present?
     url
