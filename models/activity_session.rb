@@ -1,10 +1,12 @@
 class ActivitySession < ActiveRecord::Base
   belongs_to :classroom_activity
-  belongs_to :user
   belongs_to :activity
+  ownable :user
 
   before_create :create_uid
   before_create :set_state
+
+  default_scope -> { order('activity_sessions.id desc') }
 
   def activity
     super || classroom_activity.activity
@@ -52,6 +54,8 @@ class ActivitySession < ActiveRecord::Base
   def grade
     percentage
   end
+
+  alias owner user
 
 protected
 

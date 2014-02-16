@@ -26,7 +26,6 @@ class Activity < ActiveRecord::Base
       url = ((u = URI.parse(url)).port = 3002; u.to_s)
     end
 
-    url = UriParams.add_param(url, 'cid', classification.uid)
     url = UriParams.add_param(url, 'uid', uid) if uid.present?
     url
   end
@@ -40,7 +39,6 @@ class Activity < ActiveRecord::Base
       url = ((u = URI.parse(url)).port = 3002; u.to_s)
     end
 
-    url = UriParams.add_param(url, 'cid', classification.uid)
     url = UriParams.add_param(url, 'uid', uid) if uid.present?
 
     url = if activity_session == :anonymous
@@ -50,10 +48,6 @@ class Activity < ActiveRecord::Base
     end
 
     url
-  end
-
-  def cid
-    classification.uid
   end
 
 protected

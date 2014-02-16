@@ -21,4 +21,12 @@ class ClassroomActivity < ActiveRecord::Base
   def session_for user
     activity_sessions.find_or_create_by!(user_id: user.id)
   end
+
+  class << self
+    # TODO: this method assumes that a student is only in ONE classroom.
+    def create_session activity, options = {}
+      classroom_activity = where(activity_id: activity.id, classroom_id: options[:user].classroom.id).first
+      classroom_activity.activity_sessions.create!(user: options[:user])
+    end
+  end
 end

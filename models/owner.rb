@@ -15,6 +15,14 @@ module Owner
     end
   end
 
+  def owner
+    if self.class.owner_name == :owner
+      super
+    else
+      send(self.class.owner_name)
+    end
+  end
+
   def set_owner object
     send "#{self.class.owner_name}=", object
   end
