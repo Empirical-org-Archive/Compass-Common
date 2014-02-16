@@ -8,9 +8,6 @@ module Student
     has_many :assigned_activities, through: :classroom, source: :activities
     has_many :started_activities, through: :activity_sessions, source: :activity
 
-    has_many :assigned_activities, through: :classroom, source: :activities
-    has_many :started_activities, through: :activity_sessions, source: :activity
-
     def unfinished_activities classroom
       classroom.activities - finished_activities(classroom)
     end
