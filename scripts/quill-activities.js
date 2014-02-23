@@ -42,7 +42,7 @@ jQuery.extend(Quill.prototype, {
         this.ping(this.settings.profiles['START']);
 
         // polling mode
-        //if(this.settings.autoping) this.autoping('on');
+        if(this.settings.autoping) this.autoping('on');
 
       },
 
@@ -62,7 +62,7 @@ jQuery.extend(Quill.prototype, {
               'created_at': new Date(),
               'activity_type': type,
               // TODO figure out how the data is constructed
-              ractivity_data': this.__eval({})
+              'activity_data': this.__eval({})
             }
           },
           success: function(resp) {
@@ -84,21 +84,24 @@ jQuery.extend(Quill.prototype, {
       //  Enables automated user activity logging.
       //
       autoping: function(mode) {
+
+        $this = this;
+
         if(
           mode === "on" ||
           mode === true
         ) {
           this.sleepCntr = new Counter(
-            this.settings.interval,
-            function() { ping(this.settings.profiles['PING']); },
-            this.settings.idle,
-            function() { ping(this.settings.profiles['PAUSE']); },
-            { stop: function() { ping(this.settings.profiles['STOP']); } }
+            settings.interval,
+            function() { $this.ping($this.settings.profiles['PING']); },
+            settings.idle,
+            function() { $this.ping($this.settings.profiles['PAUSE']); },
+            { stop: function() { $this.ping($this.settings.profiles['STOP']); } }
           );
           this.sleepCntr.play();
 
           var sleepCntr = this.sleepCntr;
-          jQuery(document).on(this.settings.refreshevents, function(e) {
+          jQuery(document).on(settings.refreshevents, function(e) {
             if( sleepCntr.in_timeout()) {
               sleepCntr.stop();
               sleepCntr.play();
@@ -111,12 +114,12 @@ jQuery.extend(Quill.prototype, {
           this.sleepCntr.stop();
           this.sleepCntr = null;
 
-          jQuery(document).off(this.settings.refreshevents);
+          jQuery(document).off(settings.refreshevents);
         } else if(
           mode === "toggle" ||
           mode === undefined
         ) {
-          this.sleepCntr === null ? autoping('on') : autoping('off');
+          this.sleepCntr === null ? this.autoping('on') : this.autoping('off');
         }
       },
 
