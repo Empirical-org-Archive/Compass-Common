@@ -1,14 +1,13 @@
 jQuery.extend(Quill.prototype, {
 
   //
-  //  activity events
+  //  idleCheck
   //
-  //  This object handles client-side tracking of user activity.
+  //  This function handles client idle checking.
   //
-  activities: {
+  idleCheck: function(options) {
 
-    // instance settings
-    settings: {
+    var settings = jQuery.extend({
       autoping: true,
       refreshevents: 'mousemove keydown click',
       interval: 1000,  // secs
@@ -21,111 +20,116 @@ jQuery.extend(Quill.prototype, {
         'DONE': 'done',
         'STOP': 'stop'
       }
-    },
+    }, options);
 
-    //  initialization method (should be called first)
-    //  TODO this should be a normal object initializer
-    Activities: function(options) {
+    // instantiate Activities object
+    logger = new Activities(settings);
 
-      // settings
-      this.settings.extend({
-        autoping: true,
-        refreshevents: 'mousemove keydown click',
-        interval: 1000,  // secs
-        idle: 3000,  // secs
-        to: 'quill.org',
-        profile: $.extend({
-          'START': 'start',
-          'PAUSE': 'pause',
-          'PING': 'ping',
-          'DONE': 'done',
-          'STOP': 'stop'
-        }, options.profiles),
-        payload: {}
-      }, options);
+    //
+    //  Actvities
+    //
+    //  This object holds all methods for user logging.
+    //
+    function Activities(settings) {
 
-      $e = $(e);
-      $e.sleepCntr = null;
+      this.sleepCntr = null;
 
       // send initial message
-      ping(settings.profile['START']);
+      this.ping(settings.profile['START']);
 
       // polling mode
-      if(settings.autoping) autoping('on');
+      if(settings.autoping) this.autoping('on');
 
-    },
+    }
 
-    ping: function(type) {
+    Actvities.prototype = {
 
-      // send activity to listener
-      $.ajax(settings.to, {
-        type: 'post',
-        data: {
-          'ping': 'true',
-          'activity_log_item': {
-            'created_at': new Date(),
-            // TODO get activity_log_id dynamically
-            'activities_activity_log_id': 1,
-            'activity_type': type,
-            'activity_data': __eval(settings.payload)
-          }
-        },
-        success: function(resp) {
-          // success
-        },
-        error: function(jqXhr, err) {
-          // error
-          console.log(err);
-        },
-      });
+      //
+      //  Activities.ping
+      //
+      //  Sends a user activity update message to a listening server.
+      //
+      ping: function(type) {
 
-      // DOM trigger for ping action
-      $(document).trigger(type+'.activities');
-    },
-
-    autoping: function(mode) {
-      if(
-        mode === "on" ||
-        mode === true
-      ) {
-        this.sleepCntr = new Counter(
-          settings.interval,
-          function() { ping(settings.profile['PING']); },
-          settings.idle,
-          function() { ping(settings.profile['PAUSE']); },
-          { stop: function() { ping(settings.profile['STOP']); } }
-        );
-        this.sleepCntr.play();
-
-        var sleepCntr = this.sleepCntr;
-        $(document).on(settings.refreshevents, function(e) {
-          if( sleepCntr.in_timeout()) {
-            sleepCntr.stop();
-            sleepCntr.play();
-          } else sleepCntr.refresh();
+        // send activity to listener
+        $.ajax(settings.to, {
+          type: 'post',
+          data: {
+            'ping': 'true',
+            'activity_log_item': {
+              'created_at': new Date(),
+              'activity_type': type,
+              'activity_data': __eval(settings.payload)
+            }
+          },
+          success: function(resp) {
+            // success
+          },
+          error: function(jqXhr, err) {
+            // error
+            console.log(err);
+          },
         });
-      } else if(
-        mode === "off" ||
-        mode === false
-      ) {
-        this.sleepCntr.stop();
-        this.sleepCntr = null;
 
-        $(document).off(settings.refreshevents);
-      } else if(
-        mode === "toggle" ||
-        mode === undefined
-      ) {
-        this.sleepCntr === null ? autoping('on') : autoping('off');
+        // DOM trigger for ping action
+        $(document).trigger(type+'.activities');
+      },
+
+      //
+      //  Activities.autoping
+      //
+      //  Enables automated user activity logging.
+      //
+      autoping: function(mode) {
+        if(
+          mode === "on" ||
+          mode === true
+        ) {
+          this.sleepCntr = new Counter(
+            settings.interval,
+            function() { ping(settings.profile['PING']); },
+            settings.idle,
+            function() { ping(settings.profile['PAUSE']); },
+            { stop: function() { ping(settings.profile['STOP']); } }
+          );
+          this.sleepCntr.play();
+
+          var sleepCntr = this.sleepCntr;
+          $(document).on(settings.refreshevents, function(e) {
+            if( sleepCntr.in_timeout()) {
+              sleepCntr.stop();
+              sleepCntr.play();
+            } else sleepCntr.refresh();
+          });
+        } else if(
+          mode === "off" ||
+          mode === false
+        ) {
+          this.sleepCntr.stop();
+          this.sleepCntr = null;
+
+          $(document).off(settings.refreshevents);
+        } else if(
+          mode === "toggle" ||
+          mode === undefined
+        ) {
+          this.sleepCntr === null ? autoping('on') : autoping('off');
+        }
+      },
+
+      //
+      //  Activities.__eval
+      //
+      //  Maps an object of functions to an object of return values. Non
+      //  function values are mapped to themselves.
+      //
+      __eval: function(hash) {
+        evaled_hash = {};
+        $.each(hash, function(i,e) {
+          evaled_hash[i] = typeof e === "function" ? e() : e;
+        });
+        return evaled_hash
       }
-    }
-
-    function __eval(hash) {
-      evaled_hash = {};
-      $.each(hash, function(i,e) {
-        evaled_hash[i] = typeof e === "function" ? e() : e;
-      });
-      return evaled_hash
-    }
-  }
+    } // end Activities
+  } // end idleCheck()
 });
