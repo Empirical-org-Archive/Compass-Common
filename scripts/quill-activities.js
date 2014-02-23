@@ -5,6 +5,7 @@ jQuery.extend(Quill.prototype, {
   //
   //  This function handles client idle checking.
   //
+  //
   idleCheck: function(options) {
 
     var settings = jQuery.extend({
@@ -22,9 +23,6 @@ jQuery.extend(Quill.prototype, {
       }
     }, options);
 
-    // instantiate Activities object
-    logger = new Activities(settings);
-
     //
     //  Actvities
     //
@@ -32,17 +30,21 @@ jQuery.extend(Quill.prototype, {
     //
     function Activities(settings) {
 
+      this.settings = settings;
       this.sleepCntr = null;
-
-      // send initial message
-      this.ping(settings.profile['START']);
-
-      // polling mode
-      if(settings.autoping) this.autoping('on');
-
     }
 
-    Actvities.prototype = {
+    Activities.prototype = {
+
+      init: function() {
+
+        // send initial message
+        this.ping(this.settings.profiles['START']);
+
+        // polling mode
+        //if(this.settings.autoping) this.autoping('on');
+
+      },
 
       //
       //  Activities.ping
@@ -52,14 +54,15 @@ jQuery.extend(Quill.prototype, {
       ping: function(type) {
 
         // send activity to listener
-        $.ajax(settings.to, {
+        jQuery.ajax(this.settings.to, {
           type: 'post',
           data: {
             'ping': 'true',
             'activity_log_item': {
               'created_at': new Date(),
               'activity_type': type,
-              'activity_data': __eval(settings.payload)
+              // TODO figure out how the data is constructed
+              ractivity_data': this.__eval({})
             }
           },
           success: function(resp) {
@@ -72,7 +75,7 @@ jQuery.extend(Quill.prototype, {
         });
 
         // DOM trigger for ping action
-        $(document).trigger(type+'.activities');
+        jQuery(document).trigger(type+'.activities');
       },
 
       //
@@ -86,16 +89,16 @@ jQuery.extend(Quill.prototype, {
           mode === true
         ) {
           this.sleepCntr = new Counter(
-            settings.interval,
-            function() { ping(settings.profile['PING']); },
-            settings.idle,
-            function() { ping(settings.profile['PAUSE']); },
-            { stop: function() { ping(settings.profile['STOP']); } }
+            this.settings.interval,
+            function() { ping(this.settings.profiles['PING']); },
+            this.settings.idle,
+            function() { ping(this.settings.profiles['PAUSE']); },
+            { stop: function() { ping(this.settings.profiles['STOP']); } }
           );
           this.sleepCntr.play();
 
           var sleepCntr = this.sleepCntr;
-          $(document).on(settings.refreshevents, function(e) {
+          jQuery(document).on(this.settings.refreshevents, function(e) {
             if( sleepCntr.in_timeout()) {
               sleepCntr.stop();
               sleepCntr.play();
@@ -108,7 +111,7 @@ jQuery.extend(Quill.prototype, {
           this.sleepCntr.stop();
           this.sleepCntr = null;
 
-          $(document).off(settings.refreshevents);
+          jQuery(document).off(this.settings.refreshevents);
         } else if(
           mode === "toggle" ||
           mode === undefined
@@ -124,12 +127,19 @@ jQuery.extend(Quill.prototype, {
       //  function values are mapped to themselves.
       //
       __eval: function(hash) {
+
         evaled_hash = {};
-        $.each(hash, function(i,e) {
+        jQuery.each(hash, function(i,e) {
           evaled_hash[i] = typeof e === "function" ? e() : e;
         });
         return evaled_hash
+
       }
     } // end Activities
+
+    // instantiate Activities object
+    logger = new Activities(settings);
+    logger.init();
+
   } // end idleCheck()
 });
