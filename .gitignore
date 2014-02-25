@@ -16,6 +16,7 @@ config/database.yml
 
 # compilation
 public/assets
+scripts/quill.*js
 
 # misc
 log/*.log
