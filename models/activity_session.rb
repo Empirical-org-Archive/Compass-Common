@@ -1,6 +1,8 @@
 class ActivitySession < ActiveRecord::Base
   belongs_to :classroom_activity
   belongs_to :activity
+  has_one :unit, through: :classroom_activity
+
   ownable :user
 
   before_create :create_uid
