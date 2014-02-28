@@ -42,6 +42,7 @@ class ActivitySession < ActiveRecord::Base
     completed_at.present?
   end
 
+  # TODO
   # Quill main app no longer handles grading. Instead, services put grades
   # to quill. This was the original source:
   #
@@ -58,6 +59,16 @@ class ActivitySession < ActiveRecord::Base
   end
 
   alias owner user
+
+  # TODO legacy fix
+  def anonymous= anonymous
+    self.temporary = anonymous
+  end
+
+  def owned_by? user
+    return true if temporary
+    super
+  end
 
 protected
 
