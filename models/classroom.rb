@@ -1,6 +1,11 @@
 class Classroom < ActiveRecord::Base
   has_many :classroom_chapters
-  has_many :units
+
+  has_many :units do
+    def create_next
+      create(name: "Unit #{@association.owner.units.count + 1}")
+    end
+  end
 
   has_many :classroom_activities
   has_many :activities, through: :classroom_activities
@@ -17,6 +22,7 @@ class Classroom < ActiveRecord::Base
   end
 
 private
+
   def generate_code
     self.code = NameGenerator.generate
   end
