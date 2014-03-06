@@ -22,7 +22,7 @@ class ClassroomActivity < ActiveRecord::Base
   end
 
   def for_student? student
-    return true if assigned_student_ids.empty?
+    return true if assigned_student_ids.nil? || assigned_student_ids.empty?
     assigned_student_ids.include?(student.id)
   end
 
