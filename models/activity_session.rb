@@ -65,6 +65,10 @@ class ActivitySession < ActiveRecord::Base
     self.temporary = anonymous
   end
 
+  def anonymous
+    temporary
+  end
+
   def owned_by? user
     return true if temporary
     super
