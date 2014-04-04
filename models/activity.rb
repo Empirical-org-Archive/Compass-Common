@@ -1,4 +1,6 @@
 class Activity < ActiveRecord::Base
+  include Flags
+
   belongs_to :classification, class_name: 'ActivityClassification', foreign_key: 'activity_classification_id'
   belongs_to :topic
 
