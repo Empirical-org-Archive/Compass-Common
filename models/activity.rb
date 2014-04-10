@@ -52,6 +52,15 @@ class Activity < ActiveRecord::Base
     url
   end
 
+  def flag
+    flags.first
+  end
+
+  def flag= flag
+    flag = :archived if flag.to_sym == :archive
+    self.flags = [flag]
+  end
+
 protected
 
   def create_uid
