@@ -12,6 +12,12 @@ class Activity < ActiveRecord::Base
 
   before_create :create_uid
 
+  scope :production, -> {
+    where(<<-SQL, :production)
+      activities.flags = '{}' OR ? = ANY (activities.flags)
+    SQL
+  }
+
   def classification_key= key
     self.classification = ActivityClassification.find_by_key(key)
   end
