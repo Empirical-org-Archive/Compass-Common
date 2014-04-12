@@ -23,7 +23,7 @@ module Student
 
     has_many :activity_sessions, dependent: :destroy do
       def for_activity activity
-        includes(:classroom_activity).where(classroom_activities: { activity_id: activity.id }).last
+        includes(:classroom_activity).where(classroom_activities: { activity_id: activity.id }).first
       end
     end
   end
