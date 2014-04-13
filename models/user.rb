@@ -2,9 +2,9 @@ class User < ActiveRecord::Base
   include Student, Teacher
   has_secure_password validations: false
 
-  validates :password,              confirmation: { if: :permanent? },
-                                    presence:     { if: :permanent?, on: :create }
-  validates :password_confirmation, presence:     { if: ->(m) { m.password.present? && m.permanent? } }
+  validates :password,              confirmation: { if: :requires_password_confirmation? },
+                                    presence:     { if: :requires_password? }
+  # validates :password_confirmation, presence:     { if: :requires_password_confirm? }
   validates :email,                 uniqueness:   { case_sensitive: false, allow_blank: true },
                                     presence:     { if: :email_required? }
   validates :username,              presence:     { if: ->(m) { m.email.blank? && m.permanent? } },
@@ -17,6 +17,7 @@ class User < ActiveRecord::Base
   attr_accessor :newsletter
 
   after_create :subscribe_to_newsletter
+  after_create :send_welcome_email
 
   def safe_role_assignment role
     self.role = if sanitized_role = SAFE_ROLES.find{ |r| r == role.strip }
@@ -33,13 +34,8 @@ class User < ActiveRecord::Base
     user.try(:authenticate, params[:password])
   end
 
-  def after_initialize!
-    if save
-      UserMailer.welcome_email(self).deliver! if email.present?
-      true
-    else
-      false
-    end
+  def send_welcome_email
+    UserMailer.welcome_email(self).deliver! if email.present?
   end
 
   def role
@@ -65,6 +61,14 @@ class User < ActiveRecord::Base
 
   def admin?
     role.admin?
+  end
+
+  def requires_password?
+    permanent? && (password.present? || password_confirmation.present? || new_record?)
+  end
+
+  def requires_password_confirmation?
+    requires_password? && password.present?
   end
 
   def permanent?
