@@ -13,7 +13,7 @@ module Student
     end
 
     def finished_activities classroom
-      classroom_activity_score_join(classroom).where('activity_sessions.completion_date is not null')
+      classroom_activity_score_join(classroom).where('activity_sessions.completed_at is not null')
     end
 
     def classroom_activity_score_join classroom
@@ -22,8 +22,16 @@ module Student
     protected :classroom_activity_score_join
 
     has_many :activity_sessions, dependent: :destroy do
+      def rel_for_activity activity
+        includes(:classroom_activity).where(classroom_activities: { activity_id: activity.id })
+      end
+
       def for_activity activity
-        includes(:classroom_activity).where(classroom_activities: { activity_id: activity.id }).first
+        rel_for_activity(activity).first
+      end
+
+      def completed_for_activity activity
+        rel_for_activity(activity).where('activity_sessions.completed_at is not null')
       end
     end
   end

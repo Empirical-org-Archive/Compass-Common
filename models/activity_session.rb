@@ -7,6 +7,7 @@ class ActivitySession < ActiveRecord::Base
 
   before_create :create_uid
   before_create :set_state
+  before_save   :set_completed_at
 
   default_scope -> { order('activity_sessions.id desc') }
 
@@ -82,5 +83,10 @@ protected
 
   def set_state
     self.state ||= 'unstarted'
+  end
+
+  def set_completed_at
+    return true if state != 'finished'
+    self.completed_at = Time.now
   end
 end
