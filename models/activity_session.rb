@@ -11,6 +11,15 @@ class ActivitySession < ActiveRecord::Base
 
   default_scope -> { order('activity_sessions.id desc') }
 
+  scope :completed,  -> { where('completed_at is not null').order('completed_at desc') }
+  scope :incomplete, -> { where('completed_at is null') }
+
+  scope :current_session, -> {
+    complete_session   = completed.first
+    incomplete_session = incomplete.first
+    (complete_session || incomplete_session)
+  }
+
   def activity
     super || classroom_activity.activity
   end
