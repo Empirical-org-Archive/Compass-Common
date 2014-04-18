@@ -58,7 +58,9 @@ class Activity < ActiveRecord::Base
     url
   end
 
-  def flag
+  # TODO cleanup
+  def flag flag = nil
+    return super(flag) unless flag.nil?
     flags.first
   end
 
