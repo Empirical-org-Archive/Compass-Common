@@ -33,6 +33,10 @@ module Student
       def completed_for_activity activity
         rel_for_activity(activity).where('activity_sessions.completed_at is not null')
       end
+
+      def for_classroom classroom
+        includes(:classroom_activity).where(classroom_activities: { classroom_id: classroom.id })
+      end
     end
   end
 end
