@@ -17,6 +17,10 @@ class Classroom < ActiveRecord::Base
 
   before_validation :generate_code
 
+  after_save do
+    StudentProfileCache.invalidate(students)
+  end
+
   def classroom_chapter_for chapter
     classroom_chapters.where(chapter_id: chapter.id).first
   end

@@ -5,6 +5,10 @@ class ClassroomActivity < ActiveRecord::Base
   has_one :topic, through: :activity
   has_many :activity_sessions, dependent: :destroy
 
+  after_save do
+    StudentProfileCache.invalidate(classroom.students)
+  end
+
   def assigned_students
     User.where(id: assigned_student_ids)
   end
