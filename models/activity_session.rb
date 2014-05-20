@@ -21,7 +21,7 @@ class ActivitySession < ActiveRecord::Base
   }
 
   after_save do
-    StudentProfileCache.invalidate(user) if classroom_activity.present?
+    StudentProfileCache.invalidate(user)
   end
 
   def activity
