@@ -31,5 +31,6 @@ private
 
   def generate_code
     self.code = NameGenerator.generate
+    if Classroom.find_by_code(code) then generate_code end
   end
 end
