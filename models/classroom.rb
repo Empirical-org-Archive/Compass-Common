@@ -1,4 +1,6 @@
 class Classroom < ActiveRecord::Base
+  validates_uniqueness_of :code
+
   has_many :classroom_chapters
 
   has_many :units do
