@@ -9,6 +9,8 @@ class ClassroomActivity < ActiveRecord::Base
     StudentProfileCache.invalidate(classroom.students)
   end
 
+  after_create :assign_to_students
+
   def assigned_students
     User.where(id: assigned_student_ids)
   end
@@ -30,11 +32,27 @@ class ClassroomActivity < ActiveRecord::Base
     assigned_student_ids.include?(student.id)
   end
 
+  def students
+    if assigned_student_ids.try(:any?)
+      User.find(assigned_student_ids)
+    else
+      classroom.students
+    end
+  end
+
   class << self
     # TODO: this method assumes that a student is only in ONE classroom.
     def create_session activity, options = {}
       classroom_activity = where(activity_id: activity.id, classroom_id: options[:user].classroom.id).first
       classroom_activity.activity_sessions.create!(user: options[:user])
+    end
+  end
+
+  protected
+
+  def assign_to_students
+    students.each do |student|
+      session_for(student)
     end
   end
 end

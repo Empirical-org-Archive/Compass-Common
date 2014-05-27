@@ -2,7 +2,7 @@ module Student
   extend ActiveSupport::Concern
 
   included do
-    has_one :classroom, foreign_key: 'code', primary_key: 'classcode'
+    belongs_to :classroom, foreign_key: 'classcode', primary_key: 'code'
     has_one :teacher, through: :classroom
 
     has_many :assigned_activities, through: :classroom, source: :activities
